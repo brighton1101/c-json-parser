@@ -207,6 +207,10 @@ json_parsenum(json_parser *parser, json_jsontoken *parent)
         else if (json_iswhitespace(curr_c)) {
             break;
         }
+        else if (curr_c == ']' || curr_c == '}' || curr_c == ',') {
+            printf("HERE\n");
+            break;
+        }
         switch (curr_c) {
             case '0':
             case '1':
@@ -435,7 +439,7 @@ json_parseobj(json_parser *parser, json_jsontoken *parent)
 
 int main() {
     bool is_one = false;
-    char *test = "{ \"hello\": [\n\tnull,\n\t\"Hello world\"], \"world\": 1234.5\t  }";
+    char *test = "{ \"hello\": [\n\tnull,\n\t\"Hello world\", {\"hi\": 123}], \"world\": 1234.5E100\t  }";
     json_parser *parser = json_parser_create(test);
     bool res = json_parseobj(parser, parser->all_tokens->tokens[0]);
     printf("%d \n", parser->curr);
