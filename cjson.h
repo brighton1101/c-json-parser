@@ -1,6 +1,10 @@
 #ifndef CJSON_H
 #define CJSON_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdlib.h>
 
 #define bool int
@@ -59,6 +63,7 @@ struct json_parser {
 
 /** Forward definitions */
 json_parser* json_parser_create(char *input_source);
+void json_parser_cleanup(json_parser *parser);
 json_jsontoken* json_jsontoken_create(json_jsontoken_type type, json_jsontoken *parent);
 json_jsontoken_list* json_jsontoken_list_create(int capacity);
 void json_jsontoken_list_append(json_jsontoken_list *list, json_jsontoken *t);
@@ -112,7 +117,7 @@ json_jsontoken_list_create(int capacity)
     json_jsontoken_list* list;
     list = (json_jsontoken_list*) malloc(sizeof(json_jsontoken_list));
     list->capacity = capacity;
-    list->tokens = malloc(sizeof(json_jsontoken*) * capacity);
+    list->tokens = (json_jsontoken**) malloc(sizeof(json_jsontoken*) * capacity);
     list->length = 0;
     return list;
 }
@@ -123,7 +128,7 @@ json_jsontoken_list_append
 {
     if (list->length == list->capacity) {
         list->capacity = JSON_JSONTOKEN_LIST_EXPANSION(list->capacity);
-        list->tokens =
+        list->tokens = (json_jsontoken**)
             realloc(list->tokens, sizeof(json_jsontoken*) * list->capacity);
     }
     list->tokens[list->length++] = t;
@@ -502,17 +507,28 @@ json_parseobj(json_parser *parser, json_jsontoken *parent)
     return true;
 }
 
-void json_parser_cleanup(json_parser *parser)
+void
+json_parser_cleanup(json_parser *parser)
 {
+    /** Each token has several blocks of memory allocated:
+        - the childrens' token list container
+        - the childrens' token list struct
+        - the token itself
+    */
     for (int i = 0; i < parser->all_tokens->length; i++) {
         json_jsontoken *token = parser->all_tokens->tokens[i];
         free(token->children->tokens);
         free(token->children);
         free(token);
     }
+    /** Parser follows the same pattern. */
     free(parser->all_tokens->tokens);
     free(parser->all_tokens);
     free(parser);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CJSON_H */
