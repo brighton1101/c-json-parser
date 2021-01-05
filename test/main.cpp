@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#include "ext/catch.hpp"
+#include "extern/catch.hpp"
 
 #include "../cjson.h"
 
