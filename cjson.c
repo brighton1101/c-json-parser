@@ -109,10 +109,6 @@ json_parsestr(json_parser *parser, json_jsontoken *parent)
     if (parser->input[parser->curr++] != '"') {
         strtoken->start_in = parser->curr - 1;
         strtoken->end_in = -1;
-        json_jsontoken_list_append(
-            parent->children,
-            strtoken
-        );
         parent->error = true;
         return false;
     }
@@ -126,7 +122,7 @@ json_parsestr(json_parser *parser, json_jsontoken *parent)
             parent->error = true;
             return false;
         }
-        else if (curr_c == '"' && !slshd) {
+        else if (curr_c == '\"' && !slshd) {
             json_jsontoken_list_append(
                 parent->children,
                 strtoken
@@ -278,8 +274,7 @@ json_parsenull(json_parser *parser, json_jsontoken *parent)
     );
     char *expected = "null";
     nulltoken->start_in = parser->curr;
-    int i = 0;
-    for (i; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
         if (expected[i] != parser->input[parser->curr++]) {
             parent->error = true;
             return false;
@@ -322,22 +317,27 @@ json_parsearr(json_parser *parser, json_jsontoken *parent)
                 err_seen = true;
             needs_comma = false;
         } else {
+            parser->curr--;
             if (json_isnumericalishchar(curr_c)) {
-                parser->curr--;
                 if (!json_parsenum(parser, arrtoken))
                     err_seen = true;
             } else if (curr_c == '\"') {
-                parser->curr--;
                 if (!json_parsestr(parser, arrtoken))
                     err_seen = true;
             } else if (curr_c == 'n') {
-                parser->curr--;
                 if (!json_parsenull(parser, arrtoken))
                     err_seen = true;
             } else if (curr_c == 't' || curr_c == 'f') {
-                parser->curr--;
                 if (!json_parsenull(parser, arrtoken))
                     err_seen = true;
+            } else if (curr_c == '{') {
+                if (!json_parseobj(parser, arrtoken))
+                    err_seen = true;
+            } else if (curr_c == '[') {
+                if (!json_parsearr(parser, arrtoken))
+                    err_seen = true;
+            } else {
+                err_seen = true;
             }
             needs_comma = true;
         }
@@ -357,19 +357,88 @@ json_parsearr(json_parser *parser, json_jsontoken *parent)
 bool
 json_parseobj(json_parser *parser, json_jsontoken *parent)
 {
-    
+    json_jsontoken *objtoken = json_jsontoken_create(JSON_OBJ, parent);
+    json_jsontoken_list_append(
+        parser->all_tokens,
+        objtoken
+    );
+    objtoken->start_in = parser->curr;
+    char curr_c = parser->input[parser->curr++];
+    if (curr_c != '{') {
+        parent->error = true;
+        return false;
+    }
+    bool is_key = true;
+    bool needs_comma = false;
+    bool err_seen = false;
+    json_jsontoken* last_key;
+    while (1) {
+        curr_c = parser->input[parser->curr++];
+        if (json_iswhitespace(curr_c))
+            continue;
+        else if (curr_c == '}')
+            break;
+        else if (curr_c == STR_END)
+            err_seen = true;
+        else if (curr_c == ':') {
+            if (!is_key)
+                err_seen = true;
+            is_key = false;
+        } else if (curr_c == ',') {
+            if (!needs_comma)
+                err_seen = true;
+            else if (is_key)
+                err_seen = true;
+            needs_comma = false;
+        } else if (is_key) {
+            parser->curr--;
+            if (!json_parsestr(parser, objtoken))
+                err_seen = true;
+            last_key = parser->all_tokens->tokens[parser->all_tokens->length];
+        } else {
+            parser->curr--;
+            if (json_isnumericalishchar(curr_c)) {
+                if (!json_parsenum(parser, objtoken))
+                    err_seen = true;
+            } else if (curr_c == '\"') {
+                if (!json_parsestr(parser, objtoken))
+                    err_seen = true;
+            } else if (curr_c == 'n') {
+                if (!json_parsenull(parser, objtoken))
+                    err_seen = true;
+            } else if (curr_c == 't' || curr_c == 'f') {
+                if (!json_parsenull(parser, objtoken))
+                    err_seen = true;
+            } else if (curr_c == '{') {
+                if (!json_parseobj(parser, objtoken))
+                    err_seen = true;
+            } else if (curr_c == '[') {
+                if (!json_parsearr(parser, objtoken))
+                    err_seen = true;
+            } else {
+                err_seen = true;
+            }
+            is_key = true;
+            needs_comma = true;
+        }
+        if (err_seen) {
+            parent->error = true;
+            return false;
+        }
+    }
+    json_jsontoken_list_append(
+        parent->children,
+        objtoken
+    );
+    objtoken->end_in = parser->curr;
+    return true;
 }
 
 int main() {
-    char *test = "[\n\tnull,\n\t\"Hello world\"]";
+    bool is_one = false;
+    char *test = "{ \"hello\": [\n\tnull,\n\t\"Hello world\"], \"world\": 1234.5\t  \"}";
     json_parser *parser = json_parser_create(test);
-    bool res = json_parsearr(parser, parser->all_tokens->tokens[0]);
+    bool res = json_parseobj(parser, parser->all_tokens->tokens[0]);
+    printf("%d \n", parser->curr);
     printf("res: %d \n", res);
-    printf("%d %d \n", parser->all_tokens->tokens[1]->start_in, parser->all_tokens->tokens[1]->end_in);
-    printf("%s \n", parser->input + parser->all_tokens->tokens[1]->start_in);
-    printf("%d \n", parser->all_tokens->length);
-    char* dest = (char*) malloc(sizeof(char) * (parser->all_tokens->tokens[3]->end_in-parser->all_tokens->tokens[3]->start_in+1));
-    char *out = strncpy(dest, test+parser->all_tokens->tokens[3]->start_in, parser->all_tokens->tokens[3]->end_in-parser->all_tokens->tokens[3]->start_in);
-    printf("%s \n", dest);
-    printf("%d %d \n", parser->all_tokens->tokens[3]->start_in, parser->all_tokens->tokens[3]->end_in);
 }
