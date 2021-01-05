@@ -10,6 +10,7 @@ extern "C" {
 #define bool int
 #define true 1
 #define false 0
+
 #define STR_END '\0'
 
 /* Starting capacity of token lists */

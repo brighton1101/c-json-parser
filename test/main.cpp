@@ -6,6 +6,7 @@
 #define JSON_DUMMY_TOKEN() \
     ((json_jsontoken*) malloc(sizeof(json_jsontoken)))
 
+
 /**
  * Test list operations:
  * - creating the list
@@ -32,7 +33,11 @@ TEST_CASE( "json_jsontoken_list", "[json_jsontoken_list]" )
     free(l);
 }
 
-TEST_CASE( "json_jsontoken_create ", "[json_jsontoken_create" )
+
+/**
+ * Test creating tokens
+ */
+TEST_CASE( "json_jsontoken_create ", "[json_jsontoken_create]" )
 {
     json_jsontoken *token = json_jsontoken_create(JSON_OBJ, NULL);
     REQUIRE( token->children->length == 0 );
@@ -42,4 +47,27 @@ TEST_CASE( "json_jsontoken_create ", "[json_jsontoken_create" )
     free(token->children->tokens);
     free(token->children);
     free(token);
+}
+
+
+TEST_CASE( "json_parsenull_success", "[json_parsenull]" )
+{
+    char *null_str = "null ";
+    json_parser *p = json_parser_create(null_str);
+    REQUIRE( json_parsenull(p, p->all_tokens->tokens[0]) == true );
+    json_jsontoken *null_token = p->all_tokens->tokens[1];
+    REQUIRE( null_token->parent == p->all_tokens->tokens[0] );
+    REQUIRE( null_token->start_in == 0 );
+    REQUIRE( null_token->end_in == 4 );
+    json_parser_cleanup(p);
+}
+
+
+TEST_CASE( "json_parsenull_fail", "[json_parsenull]" )
+{
+    char *null_str = "nul ";
+    json_parser *p = json_parser_create(null_str);
+    REQUIRE( json_parsenull(p, p->all_tokens->tokens[0]) == false );
+    REQUIRE( p->all_tokens->tokens[0]->error == true );
+    json_parser_cleanup(p);
 }
