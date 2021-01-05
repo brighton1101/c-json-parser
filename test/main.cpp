@@ -59,6 +59,7 @@ TEST_CASE( "json_parsenull_success", "[json_parsenull]" )
     REQUIRE( null_token->parent == p->all_tokens->tokens[0] );
     REQUIRE( null_token->start_in == 0 );
     REQUIRE( null_token->end_in == 4 );
+    REQUIRE( null_token->type == JSON_NUL );
     json_parser_cleanup(p);
 }
 
@@ -69,5 +70,18 @@ TEST_CASE( "json_parsenull_fail", "[json_parsenull]" )
     json_parser *p = json_parser_create(null_str);
     REQUIRE( json_parsenull(p, p->all_tokens->tokens[0]) == false );
     REQUIRE( p->all_tokens->tokens[0]->error == true );
+    json_parser_cleanup(p);
+}
+
+
+TEST_CASE( "json_parsestr_success", "[json_parsestr]" )
+{
+    char *str_str = "\"Valid json str\"";
+    json_parser *p = json_parser_create(str_str);
+    REQUIRE( json_parsestr(p, p->all_tokens->tokens[0]) == true );
+    json_jsontoken *t = p->all_tokens->tokens[1];
+    REQUIRE( t->start_in == 1 ); /** 'V' */
+    REQUIRE( t->end_in == 15 ); /** '\"' */
+    REQUIRE( t->type == JSON_STR );
     json_parser_cleanup(p);
 }
