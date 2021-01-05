@@ -374,6 +374,7 @@ json_parseobj(json_parser *parser, json_jsontoken *parent)
     json_jsontoken* last_key;
     while (1) {
         curr_c = parser->input[parser->curr++];
+        printf("%c \n", curr_c);
         if (json_iswhitespace(curr_c))
             continue;
         else if (curr_c == '}')
@@ -386,8 +387,6 @@ json_parseobj(json_parser *parser, json_jsontoken *parent)
             is_key = false;
         } else if (curr_c == ',') {
             if (!needs_comma)
-                err_seen = true;
-            else if (is_key)
                 err_seen = true;
             needs_comma = false;
         } else if (is_key) {
@@ -436,7 +435,7 @@ json_parseobj(json_parser *parser, json_jsontoken *parent)
 
 int main() {
     bool is_one = false;
-    char *test = "{ \"hello\": [\n\tnull,\n\t\"Hello world\"], \"world\": 1234.5\t  \"}";
+    char *test = "{ \"hello\": [\n\tnull,\n\t\"Hello world\"], \"world\": 1234.5\t  }";
     json_parser *parser = json_parser_create(test);
     bool res = json_parseobj(parser, parser->all_tokens->tokens[0]);
     printf("%d \n", parser->curr);
