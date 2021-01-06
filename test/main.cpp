@@ -85,3 +85,16 @@ TEST_CASE( "json_parsestr_success", "[json_parsestr]" )
     REQUIRE( t->type == JSON_STR );
     json_parser_cleanup(p);
 }
+
+
+TEST_CASE( "json_parsenum_int", "[json_parsenum]" )
+{
+    char *int_str = "-12345 ";
+    json_parser *p = json_parser_create(int_str);
+    REQUIRE( json_parsenum(p, p->all_tokens->tokens[0]) == true );
+    json_jsontoken *t = p->all_tokens->tokens[1];
+    REQUIRE( t->start_in == 0 );
+    REQUIRE( t->end_in == 6 );
+    REQUIRE( t->type == JSON_INT );
+    json_parser_cleanup(p);
+}

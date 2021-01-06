@@ -262,7 +262,7 @@ json_parsenum(json_parser *parser, json_jsontoken *parent)
         numtoken
     );
     numtoken->start_in = parser->curr;
-    bool is_first = false;
+    bool is_first = true;
     bool seen_dec = false;
     bool seen_e = false;
     bool seen_neg = false;
@@ -276,10 +276,7 @@ json_parsenum(json_parser *parser, json_jsontoken *parent)
             parent->error = true;
             return false;
         }
-        else if (json_iswhitespace(curr_c)) {
-            break;
-        }
-        else if (curr_c == ']' || curr_c == '}' || curr_c == ',') {
+        else if (json_iswhitespace(curr_c) || curr_c == ']' || curr_c == '}' || curr_c == ',') {
             parser->curr--;
             break;
         }
@@ -294,14 +291,14 @@ json_parsenum(json_parser *parser, json_jsontoken *parent)
             case '7':
             case '8':
             case '9':
-                continue;
+                break;
             case '.':
                 if (seen_dec) {
                     parent->error = true;
                     return false;
                 }
                 seen_dec = true;
-                continue;
+                break;
             case 'E':
             case 'e':
                 if (seen_e) {
@@ -309,10 +306,11 @@ json_parsenum(json_parser *parser, json_jsontoken *parent)
                     return false;
                 }
                 seen_e = true;
+                break;
             case '-':
                 if (is_first) {
                     seen_neg = true;
-                    continue;
+                    break;
                 }
                 else if ((seen_neg && !seen_e) || 
                     (seen_e && seen_neg_after_e)) {
@@ -320,7 +318,7 @@ json_parsenum(json_parser *parser, json_jsontoken *parent)
                     return false;
                 } else if (seen_e) {
                     seen_neg_after_e = true;
-                    continue;
+                    break;
                 } else {
                     parent->error = true;
                     return false;
