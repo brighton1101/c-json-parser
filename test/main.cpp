@@ -7,12 +7,6 @@
     ((json_jsontoken*) malloc(sizeof(json_jsontoken)))
 
 
-/**
- * Test list operations:
- * - creating the list
- * - appending to the list
- * - lists' ability to resize automatically.
- */
 TEST_CASE( "json_jsontoken_list", "[json_jsontoken_list]" )
 {
     auto first = JSON_DUMMY_TOKEN();
@@ -34,9 +28,6 @@ TEST_CASE( "json_jsontoken_list", "[json_jsontoken_list]" )
 }
 
 
-/**
- * Test creating tokens
- */
 TEST_CASE( "json_jsontoken_create ", "[json_jsontoken_create]" )
 {
     json_jsontoken *token = json_jsontoken_create(JSON_OBJ, NULL);
@@ -142,7 +133,7 @@ TEST_CASE( "json_parsebool_true", "[json_parsebool]" )
     json_parser_cleanup(p);
 }
 
-TEST_CASE( "json_parsebool_false", "[json_parsebool]" )
+TEST_CASE( "json_parsebool", "[json_parsebool]" )
 {
     char *bool_str = "false ";
     json_parser *p = json_parser_create(bool_str);
@@ -201,4 +192,9 @@ TEST_CASE( "json_parsearr_one", "[json_parsearr]" )
     REQUIRE( t->start_in == 0 );
     REQUIRE( t->end_in == 56 );
     json_parser_cleanup(p);
+}
+
+TEST_CASE( "json_parseobj", "[json_parseobj]")
+{
+
 }
