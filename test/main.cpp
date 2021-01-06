@@ -129,3 +129,76 @@ TEST_CASE( "json_parsenum_multiple_e", "[json_parsenum]")
     REQUIRE( p->all_tokens->tokens[0]->error == true );
     json_parser_cleanup(p);
 }
+
+TEST_CASE( "json_parsebool_true", "[json_parsebool]" )
+{
+    char *bool_str = "true ";
+    json_parser *p = json_parser_create(bool_str);
+    REQUIRE( json_parsebool(p, p->all_tokens->tokens[0]) == true );
+    json_jsontoken *t = p->all_tokens->tokens[1];
+    REQUIRE( t->type == JSON_BOO );
+    REQUIRE( t->start_in == 0 );
+    REQUIRE( t->end_in == 4 );
+    json_parser_cleanup(p);
+}
+
+TEST_CASE( "json_parsebool_false", "[json_parsebool]" )
+{
+    char *bool_str = "false ";
+    json_parser *p = json_parser_create(bool_str);
+    REQUIRE( json_parsebool(p, p->all_tokens->tokens[0]) == true );
+    json_jsontoken *t = p->all_tokens->tokens[1];
+    REQUIRE( t->type == JSON_BOO );
+    REQUIRE( t->start_in == 0 );
+    REQUIRE( t->end_in == 5 );
+    json_parser_cleanup(p);
+}
+
+TEST_CASE( "json_parsebool_err", "[json_parsebool]" )
+{
+    char *err_str = "tRue ";
+    json_parser *p = json_parser_create(err_str);
+    REQUIRE( json_parsebool(p, p->all_tokens->tokens[0]) == false );
+    REQUIRE( p->all_tokens->tokens[0]->error == true );
+    json_parser_cleanup(p);
+}
+
+TEST_CASE( "json_parsearr_one", "[json_parsearr]" )
+{
+    char *arr_str = "[ \"hello\", 1234, 12, \
+    null, true, 12.12e100, [], {} \
+] \
+";
+    json_parser *p = json_parser_create(arr_str);
+    REQUIRE( json_parsearr(p, p->all_tokens->tokens[0]) == true );
+    json_jsontoken *t = p->all_tokens->tokens[1];
+    REQUIRE( t->children->length == 8 );
+    int i = 0;
+    REQUIRE( t->children->tokens[i]->type == JSON_STR );
+    REQUIRE( t->children->tokens[i]->start_in == 3 );
+    REQUIRE( t->children->tokens[i++]->end_in == 8 );
+    REQUIRE( t->children->tokens[i]->type == JSON_INT );
+    REQUIRE( t->children->tokens[i]->start_in == 11 );
+    REQUIRE( t->children->tokens[i++]->end_in == 15 );
+    REQUIRE( t->children->tokens[i]->type == JSON_INT );
+    REQUIRE( t->children->tokens[i]->start_in == 17 );
+    REQUIRE( t->children->tokens[i++]->end_in == 19 );
+    REQUIRE( t->children->tokens[i]->type == JSON_NUL );
+    REQUIRE( t->children->tokens[i]->start_in == 25 );
+    REQUIRE( t->children->tokens[i++]->end_in == 29 );
+    REQUIRE( t->children->tokens[i]->type == JSON_BOO );
+    REQUIRE( t->children->tokens[i]->start_in == 31 );
+    REQUIRE( t->children->tokens[i++]->end_in == 35 );
+    REQUIRE( t->children->tokens[i]->type == JSON_FLO );
+    REQUIRE( t->children->tokens[i]->start_in == 37 );
+    REQUIRE( t->children->tokens[i++]->end_in == 46 );
+    REQUIRE( t->children->tokens[i]->type == JSON_ARR );
+    REQUIRE( t->children->tokens[i]->start_in == 48 );
+    REQUIRE( t->children->tokens[i++]->end_in == 50 );
+    REQUIRE( t->children->tokens[i]->type == JSON_OBJ );
+    REQUIRE( t->children->tokens[i]->start_in == 52 );
+    REQUIRE( t->children->tokens[i++]->end_in == 54 );
+    REQUIRE( t->start_in == 0 );
+    REQUIRE( t->end_in == 56 );
+    json_parser_cleanup(p);
+}

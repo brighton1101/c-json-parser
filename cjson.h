@@ -425,7 +425,7 @@ json_parsearr(json_parser *parser, json_jsontoken *parent)
                 if (!json_parsenull(parser, arrtoken))
                     err_seen = true;
             } else if (curr_c == 't' || curr_c == 'f') {
-                if (!json_parsenull(parser, arrtoken))
+                if (!json_parsebool(parser, arrtoken))
                     err_seen = true;
             } else if (curr_c == '{') {
                 if (!json_parseobj(parser, arrtoken))
@@ -502,7 +502,7 @@ json_parseobj(json_parser *parser, json_jsontoken *parent)
                 if (!json_parsenull(parser, last_key))
                     err_seen = true;
             } else if (curr_c == 't' || curr_c == 'f') {
-                if (!json_parsenull(parser, last_key))
+                if (!json_parsebool(parser, last_key))
                     err_seen = true;
             } else if (curr_c == '{') {
                 if (!json_parseobj(parser, last_key))
