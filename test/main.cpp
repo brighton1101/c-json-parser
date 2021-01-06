@@ -98,3 +98,34 @@ TEST_CASE( "json_parsenum_int", "[json_parsenum]" )
     REQUIRE( t->type == JSON_INT );
     json_parser_cleanup(p);
 }
+
+
+TEST_CASE( "json_parsenum_float", "[json_parsenum]" )
+{
+    char *flo_str = "1245690123.13456E100 ";
+    json_parser *p = json_parser_create(flo_str);
+    REQUIRE( json_parsenum(p, p->all_tokens->tokens[0]) == true );
+    json_jsontoken *t = p->all_tokens->tokens[1];
+    REQUIRE( t->type == JSON_FLO );
+    REQUIRE( t->start_in == 0 );
+    REQUIRE( t->end_in == 20 );
+    json_parser_cleanup(p);
+}
+
+TEST_CASE( "json_parsenum_error_multiple_neg", "[json_parsenum]" )
+{
+    char *err_str = "-123-45e1 ";
+    json_parser *p = json_parser_create(err_str);
+    REQUIRE( json_parsenum(p, p->all_tokens->tokens[0]) == false );
+    REQUIRE( p->all_tokens->tokens[0]->error == true );
+    json_parser_cleanup(p);
+}
+
+TEST_CASE( "json_parsenum_multiple_e", "[json_parsenum]")
+{
+    char *err_str = "123E10E10";
+    json_parser *p = json_parser_create(err_str);
+    REQUIRE( json_parsenum(p, p->all_tokens->tokens[0]) == false );
+    REQUIRE( p->all_tokens->tokens[0]->error == true );
+    json_parser_cleanup(p);
+}
