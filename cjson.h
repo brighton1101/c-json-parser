@@ -49,14 +49,14 @@ typedef struct json_parser json_parser;
 
 /** Available types of tokens */
 typedef enum {
-    JSON_NUL = 0,  // null
-    JSON_OBJ = 1,  // object
-    JSON_ARR = 2,  // array
-    JSON_STR = 3,  // string
-    JSON_BOO = 4,  // boolean
-    JSON_INT = 5,  // integer
-    JSON_FLO = 6,  // float
-    JSON_OUT = 7,  // outer wrapper
+    JSON_NUL = 0,  /** null */
+    JSON_OBJ = 1,  /** object */
+    JSON_ARR = 2,  /** array */
+    JSON_STR = 3,  /** string */
+    JSON_BOO = 4,  /** boolean */
+    JSON_INT = 5,  /** integer */
+    JSON_FLO = 6,  /** float */
+    JSON_OUT = 7,  /** outer wrapper */
 } json_jsontoken_type;
 
 /** Token definition */
