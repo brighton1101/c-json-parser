@@ -196,5 +196,6 @@ TEST_CASE( "json_parsearr_one", "[json_parsearr]" )
 
 TEST_CASE( "json_parseobj", "[json_parseobj]")
 {
-
+    // to be continued.
+    REQUIRE( true == true );
 }
