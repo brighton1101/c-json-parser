@@ -185,14 +185,6 @@ json_parser_create(char *input_source)
     return parser;
 }
 
-/*
-Given that a str is detected
-  - parse/create str token
-  - add token to parents children
-NOTE:
-this assumes the char array looks something like this:
-{'"', 'a', 'b', 'c', '"'}
- */
 bool
 json_parsestr(json_parser *parser, json_jsontoken *parent)
 {
