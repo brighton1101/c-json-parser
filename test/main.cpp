@@ -197,11 +197,11 @@ TEST_CASE( "json_parsearr_one", "[json_parsearr]" )
 TEST_CASE( "json_parseobj", "[json_parseobj]")
 {
     char *obj_str = "{\
-\"hello\": 123, \"world\": []}";
+\"hello\": 123, \"world\": [], \"test\": {\"test\": {\"test\": false}}}";
     json_parser *p = json_parser_create(obj_str);
     REQUIRE( json_parseobj(p, p->all_tokens->tokens[0]) == true );
     json_jsontoken *t = p->all_tokens->tokens[1];
-    REQUIRE( t->children->length == 2 );
+    REQUIRE( t->children->length == 3 );
     REQUIRE( t->children->tokens[0]->start_in == 2 );
     REQUIRE( t->children->tokens[0]->end_in == 7 );
     REQUIRE( t->children->tokens[0]->children->length == 1 );
@@ -211,5 +211,10 @@ TEST_CASE( "json_parseobj", "[json_parseobj]")
     REQUIRE( t->children->tokens[1]->end_in == 21 );
     REQUIRE( t->children->tokens[1]->children->tokens[0]->start_in == 24 );
     REQUIRE( t->children->tokens[1]->children->tokens[0]->end_in == 26 );
+    REQUIRE( t->children->tokens[2]->children->length == 1 );
+    REQUIRE( t->children->tokens[2]->start_in == 29 );
+    REQUIRE( t->children->tokens[2]->end_in == 33 );
+    REQUIRE( t->children->tokens[2]->children->tokens[0]->start_in == 36 );
+    REQUIRE( t->children->tokens[2]->children->tokens[0]->end_in == 61 );
     json_parser_cleanup(p);
 }

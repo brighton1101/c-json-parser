@@ -263,8 +263,7 @@ json_parsebool(json_parser *parser, json_jsontoken *parent)
         parent->children,
         booltoken
     );
-    parser->curr++;
-    booltoken->end_in = parser->curr - 1;
+    booltoken->end_in = parser->curr;
     return true;
 }
 
