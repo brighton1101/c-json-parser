@@ -1,9 +1,8 @@
 # Single pass JSON parser in C
 
 Creates a tree representing a JSON object built with tokens:
-```
 
-c```
+```c
 struct json_jsontoken {
     json_jsontoken_type type;
     json_jsontoken* parent;
